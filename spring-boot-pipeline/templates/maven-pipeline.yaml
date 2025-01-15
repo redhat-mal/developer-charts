@@ -26,6 +26,10 @@ spec:
       name: image
       type: string
       description: "container image"
+    - default: {{ .Values.image.registry }}/{{ .Values.system }}-qa/{{ .Values.component }}
+      name: qa-image
+      type: string
+      description: "container qa image"
     - default: latest
       name: version
       type: string
@@ -88,3 +92,19 @@ spec:
       value: $(params.image):$(params.version)
     - name: DOCKERFILE
       value: $(params.dockerfilePath)
+  - name: build-qa-image
+    runAfter: ["package"]
+    taskRef:
+      name: buildah
+      kind: ClusterTask
+    workspaces:
+    - name: source 
+      workspace: maven-repo
+    params:
+    - name: IMAGE
+      value: $(params.qa-image):$(params.version)
+    - name: DOCKERFILE
+      value: $(params.dockerfilePath)
+
+
+
